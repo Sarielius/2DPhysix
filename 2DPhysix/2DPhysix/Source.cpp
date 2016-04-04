@@ -2,8 +2,10 @@
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
-	sf::CircleShape shape(100.f);
+	sf::RenderWindow window(sf::VideoMode(1600, 900), "2DPhysix Premium 2016");
+	sf::RectangleShape shape(sf::Vector2f(100.0f, 100.0f));
+	
+	
 	shape.setFillColor(sf::Color::Green);
 
 	while (window.isOpen())
