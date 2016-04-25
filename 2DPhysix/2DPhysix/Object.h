@@ -1,10 +1,16 @@
 #pragma once
+#include <SFML\Graphics.hpp>
 
 class Object
 {
 public:
-	Object();
-	~Object();
-	void update();
+	Object(sf::Vector2f dimensions)
+	{
+		shape.setSize(dimensions);
+	};
+
+
+private:
+	sf::RectangleShape shape;
 };
 
