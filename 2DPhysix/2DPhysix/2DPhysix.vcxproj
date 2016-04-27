@@ -82,6 +82,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Object.cpp" />
     <ClCompile Include="Overlord.cpp" />
     <ClCompile Include="Source.cpp" />
   </ItemGroup>
