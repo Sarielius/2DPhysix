@@ -23,6 +23,8 @@ Object::Object(float X, float Y, float positionX, float positionY, float mass, b
 	}
 
 	// Hard coded, might change later, might not.
+	// edge normals need to normalized ( length == 1 ) before they are added
+	// Need to get points in world coordinates instead of local, how do?
 
 	sf::Vector2f edge = points[0] - points[1];
 	sf::Vector2f normal(edge.x, -edge.y);

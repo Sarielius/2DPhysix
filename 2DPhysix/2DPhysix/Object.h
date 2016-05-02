@@ -37,20 +37,13 @@ public:
 		forceMultiplier = value;
 	}
 
-	/*std::vector<sf::Vector2f>& getPointVector()
-	{
-		return points;
-	}*/
-
-	std::vector<sf::Vector2f>& getAxisVector()
-	{
-		return axis;
-	}
-
 	void updateAxis();
 
 	void update(float deltaTime);
 	void render(sf::RenderWindow& win);
+
+	std::vector<sf::Vector2f> points; // Contains vertexes in order.
+	std::vector<sf::Vector2f> axis; // Contains edge normals for this object.
 
 private:
 	sf::RectangleShape shape;
@@ -66,7 +59,6 @@ private:
 	float mass; // Mass of the object. Only used in collision handling.
 	float forceMultiplier; // Multiplies velocities etc.
 
-	std::vector<sf::Vector2f> points; // Contains vertexes in order.
-	std::vector<sf::Vector2f> axis; // Contains
+	
 };
 
