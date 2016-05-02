@@ -18,11 +18,11 @@ public:
 	}
 
 	// Function which is used to create the objects.
-	Object* createObject(float sizeX, float sizeY, float posX, float posY, bool movable = true, bool rotatable = true, float gravity = -10.0f)
+	Object* createObject(float sizeX, float sizeY, float posX, float posY, float mass, bool movable = true, bool rotatable = true, float gravity = -10.0f)
 	{
 		// Gravity multiplier, need to test for a better value
 		gravity = gravity * 100;
-		Object* object = new Object(sizeX, sizeY, posX, posY, movable, rotatable, gravity);
+		Object* object = new Object(sizeX, sizeY, posX, posY, mass, movable, rotatable, gravity);
 		objects.push_back(object);
 		return object;
 	}

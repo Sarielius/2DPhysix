@@ -1,4 +1,5 @@
 #include "Overlord.h"
+#include <iostream>
 
 void Overlord::run()
 {
@@ -35,13 +36,21 @@ void Overlord::run()
 void Overlord::init()
 {
 	// Create all the objects here...
-	Object* box1 = createObject(100.0f, 100.0f, window.getSize().x / 2, 0.0f);
+	Object* box1 = createObject(100.0f, 100.0f, window.getSize().x / 2, 0.0f, 2.0f);
 	box1->getShape().setFillColor(sf::Color::Red);
-	box1->setHorizontalVelocity(-100.0f);
-	box1->setVerticalVelocity(-500.0f);
-	box1->getShape().setRotation(45.0f);
+	box1->setHorizontalVelocity(-1.0f);
+	box1->setVerticalVelocity(-5.0f);
+	box1->setAngle(45.0f);
 
-	Object* ground = createObject(window.getSize().x, 50.0f, 0.0f, window.getSize().y - 50.0f, false);
+	Object* box2 = createObject(100.0f, 100.0f, window.getSize().x / 2, 100.0f, 2.0f);
+	box2->getShape().setFillColor(sf::Color::Blue);
+	box2->setHorizontalVelocity(1.0f);
+	box2->setVerticalVelocity(-5.0f);
+	box2->setAngle(45.0f);
+	box2->setAngularVelocity(1.0f);
+	
+	// Ground / wall mass should be infinite, need to check visually for a proper value.
+	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 50.0f, 0.0f, false, false);
 	ground->getShape().setFillColor(sf::Color::Magenta);
 	
 }
