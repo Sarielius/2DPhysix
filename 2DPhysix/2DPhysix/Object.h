@@ -5,7 +5,7 @@
 class Object
 {
 public:
-	Object(float X, float Y, float positionX, float positionY, float mass, bool mov, bool rot, float gravity);
+	Object(const float X, const float Y, const float positionX, const float positionY, const float mass, bool mov, bool rot, const float gravity);
 
 	sf::RectangleShape& getShape()
 	{
@@ -37,13 +37,29 @@ public:
 		forceMultiplier = value;
 	}
 
-	void updateAxis();
+	void normalize(sf::Vector2f& vec)
+	{
+		float magnitude = sqrt(vec.x * vec.x + vec.y * vec.y);
+
+		// Can't divide by zero.
+		if (magnitude > 0)
+		{
+			vec = sf::Vector2f(vec.x / magnitude, vec.y / magnitude);
+		}
+	}
+
+	std::vector<sf::Vector2f>& getAxes()
+	{
+		return axes;
+	}
+
+	void updateAxes();
 
 	void update(float deltaTime);
 	void render(sf::RenderWindow& win);
 
-	std::vector<sf::Vector2f> points; // Contains vertexes in order.
-	std::vector<sf::Vector2f> axis; // Contains edge normals for this object.
+	std::vector<sf::Vector2f> points; // Contains shape points in order
+	std::vector<sf::Vector2f> axes; // Contains edge normals for this object.
 
 private:
 	sf::RectangleShape shape;
