@@ -48,6 +48,11 @@ public:
 		}
 	}
 
+	void setMouse(bool yn)
+	{
+		mouseHax = yn;
+	}
+
 	std::vector<sf::Vector2f>& getAxes()
 	{
 		return axes;
@@ -74,6 +79,7 @@ private:
 	float angVel; // Angular velocity, how fast the object spins.
 	float mass; // Mass of the object. Only used in collision handling.
 	float forceMultiplier; // Multiplies velocities etc.
+	bool mouseHax;
 
 	
 };

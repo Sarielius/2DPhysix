@@ -2,10 +2,22 @@
 #include "Object.h"
 #include <vector>
 
+struct MTV
+{
+	sf::Vector2f axis = sf::Vector2f(0.0f, 0.0f);
+	float overlap = 0.0f;
+};
+
+struct Projection
+{
+	float min;
+	float max;
+};
+
 class Overlord
 {
 public:
-	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), dt(0.0f)
+	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), dt(0.0f), debugCounter(0)
 	{};
 
 	~Overlord()
@@ -16,12 +28,6 @@ public:
 		}
 		objects.clear();
 	}
-
-	struct Projection
-	{
-		float min;
-		float max;
-	};
 
 	// Function which is used to create the objects.
 	Object* createObject(float sizeX, float sizeY, float posX, float posY, float mass, bool movable = true, bool rotatable = true, float gravity = -10.0f)
@@ -40,6 +46,7 @@ public:
 		{
 			object->update(deltaTime);
 		}
+		
 	}
 
 	// Draw everything
@@ -72,16 +79,16 @@ public:
 	}
 
 	// Gets the projection of a shape on a specific axis.
-	Projection& getProjection(const sf::Vector2f& axis, const std::vector<sf::Vector2f>& points)
+	Projection& getProjection(const sf::Vector2f& axis, Object* obj)
 	{
 		Projection proj;
 
-		proj.min = dot(axis, points[0]);
+		proj.min = dot(axis, obj->points[0]);
 		proj.max = proj.min;
 
-		for (size_t i = 1; i < points.size(); i++)
+		for (size_t i = 1; i < obj->points.size(); i++)
 		{
-			float val = dot(axis, points[i]);
+			float val = dot(axis, obj->points[i]);
 			if (val < proj.min)
 			{
 				proj.min = val;
@@ -102,18 +109,30 @@ public:
 			// Projections don't overlap.
 			return 0.0f;
 		}
-		if (proj1.max > proj2.min)
+
+		// Projections overlap if we get this far.
+
+		float overlap1 = proj1.max - proj2.min;
+		float overlap2 = proj2.max - proj1.min;
+
+		if ( overlap1 < overlap2)
 		{
-			return proj1.max - proj2.min;
+			return overlap1;
 		}
-		if (proj2.max > proj1.min)
+		else
 		{
-			return proj2.max - proj1.min;
+			return overlap2;
 		}
 	}
+
+	void simulate();
+	void checkCollisions(Object* obj1, Object* obj2);
+	void resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv); // tjsp
+
 private:
-	
+	int debugCounter;
 	std::vector<Object*> objects;
+
 	float dt;
 };
 

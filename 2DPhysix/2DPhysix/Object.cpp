@@ -24,7 +24,6 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	}
 
 	// Hard coded, might change later, might not.
-	// edge normals need to normalized ( length == 1 ) before they are added
 
 	sf::Vector2f edge = points[0] - points[1];
 	sf::Vector2f normal(edge.x, -edge.y);
@@ -46,6 +45,7 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	normalize(normal);
 	axes.push_back(normal);
 
+	mouseHax = false;
 }
 
 
@@ -106,11 +106,13 @@ void Object::update(float deltaTime)
 		angle = angle + angVel * deltaTime;
 	}
 
-	/*for (size_t i = 0; i < 4; i++)
+	if (mouseHax)
 	{
-		std::cout << "Point " << i << "\nx: " << shape.getPoint(i).x
-			<< "\ny: " << shape.getPoint(i).y << "\n";
-	}*/
+		posX = sf::Mouse::getPosition().x;
+		posY = sf::Mouse::getPosition().y;
+	}
+
+
 
 	shape.setRotation(angle);
 	shape.setPosition(posX, posY);

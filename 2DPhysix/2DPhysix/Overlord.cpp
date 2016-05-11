@@ -3,7 +3,7 @@
 
 void Overlord::run()
 {
-	window.setFramerateLimit(60);
+	window.setFramerateLimit(20);
 	init();
 
 	while (window.isOpen())
@@ -23,6 +23,10 @@ void Overlord::run()
 		// Deltatime for Euler (Physics calculations, need to manually adjust this, or take from sf::Clock.reset())
 		dt = 0.01f;
 
+		// Check collisions and resolve those that have occured.
+
+		simulate();
+
 		// Update and draw everything.
 		update(dt);
 		render(window);
@@ -39,17 +43,23 @@ void Overlord::run()
 void Overlord::init()
 {
 	 //Create all the objects here...
+	
 
-	Object* box1 = createObject(100.0f, 100.0f, window.getSize().x / 2, 0.0f, 2.0f);
+
+	/*Object* box1 = createObject(100.0f, 100.0f, 500, 100.0f, 2.0f);
 	box1->getShape().setFillColor(sf::Color::Red);
-	box1->setHorizontalVelocity(-1.0f);
-	box1->setVerticalVelocity(-5.0f);
-	box1->setAngle(45.0f);
+	box1->setHorizontalVelocity(1.0f);
+	box1->setVerticalVelocity(-2.0f);
+	box1->setAngle(45.0f);*/
 
-	Object* box2 = createObject(100.0f, 100.0f, window.getSize().x / 2, 100.0f, 2.0f);
+	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition().x, sf::Mouse::getPosition().y, 0.0f, false);
+	debugBox->getShape().setFillColor(sf::Color::White);
+	debugBox->setMouse(true);
+
+	Object* box2 = createObject(100.0f, 100.0f, 780, 100.0f, 2.0f, false);
 	box2->getShape().setFillColor(sf::Color::Blue);
-	box2->setHorizontalVelocity(1.0f);
-	box2->setVerticalVelocity(-5.0f);
+	box2->setHorizontalVelocity(-1.0f);
+	box2->setVerticalVelocity(-2.0f);
 	box2->setAngle(45.0f);
 	box2->setAngularVelocity(1.0f);
 	
@@ -58,6 +68,7 @@ void Overlord::init()
 	ground->getShape().setFillColor(sf::Color::Magenta);
 	
 }
+
 
 void Overlord::debugPrint()
 {
@@ -71,15 +82,72 @@ void Overlord::debugPrint()
 			<< "\ny: " << obj->points[i].y << "\n";
 	}*/
 
-	std::vector<int> keila;
-
-	for (size_t i = 0; i < 10; i++)
-	{
-		keila.push_back(i);
-	}
-
-	
-
-	
 
 }
+
+void Overlord::simulate() // Simulate using dirty hax or smth fam
+{
+
+	for (size_t i = 0; i < objects.size() - 1; i++)
+	{
+		for (size_t j = i + 1; j < objects.size(); j++)
+		{
+			checkCollisions(objects[i], objects[j]);
+		}
+	}
+}
+
+void Overlord::checkCollisions(Object* obj1, Object* obj2)
+{
+	MTV mtv;
+	
+	std::vector<sf::Vector2f> axis1 = obj1->getAxes();
+	std::vector<sf::Vector2f> axis2 = obj2->getAxes();
+
+	for (size_t i = 0; i < axis1.size(); i++)
+	{
+		Projection proj1 = getProjection(axis1[i], obj1);
+		Projection proj2 = getProjection(axis1[i], obj2);
+
+		double currentOverlap = getOverlap(proj1, proj2);
+
+		if (currentOverlap == 0.0f) // "Touching" or not colliding at all
+		{
+			return;
+		}
+
+		if (currentOverlap < mtv.overlap || mtv.overlap == 0.0f)
+		{
+			mtv.overlap = currentOverlap;
+			mtv.axis = axis1[i];
+		}
+
+	}
+
+	for (size_t i = 0; i < axis1.size(); i++)
+	{
+		Projection proj1 = getProjection(axis2[i], obj1);
+		Projection proj2 = getProjection(axis2[i], obj2);
+
+		double currentOverlap = getOverlap(proj1, proj2);
+
+		if (currentOverlap == 0.0f) // "Touching" or not colliding at all
+		{
+			return;
+		}
+
+		if (currentOverlap < mtv.overlap)
+		{
+			mtv.overlap = currentOverlap;
+			mtv.axis = axis2[i];
+		}
+
+	}
+
+	// If get here a collision has occurred
+	debugCounter++;
+	std::cout << "Number of collisions: " << debugCounter << "\n" ;
+
+	//resolveCollisions(obj1, obj2, mtv);
+}
+
