@@ -93,7 +93,7 @@ public:
 			{
 				proj.min = val;
 			}
-			else if (val > proj.max)
+			if (val > proj.max)
 			{
 				proj.max = val;
 			}

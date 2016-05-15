@@ -12,7 +12,8 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	mass(mass),
 	angle(0.0f),
 	angVel(0.0f),
-	forceMultiplier(100.0f)
+	forceMultiplier(100.0f),
+	window(nullptr)
 {
 	shape.setSize(sf::Vector2f(X, Y));
 	shape.setOrigin(X / 2, Y / 2); // Origin also acts as center of mass. getOrigin() for access.
@@ -27,31 +28,32 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 
 	sf::Vector2f edge = points[0] - points[1];
 	sf::Vector2f normal(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal); 
 	axes.push_back(normal);
 
 	edge = points[1] - points[2];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal); 
 	axes.push_back(normal);
 
 	edge = points[2] - points[3];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal);
 	axes.push_back(normal);
 
 	edge = points[3] - points[0];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal);
 	axes.push_back(normal);
 
-	mouseHax = false;
+	debugMode = false;
 }
 
 
 void Object::render(sf::RenderWindow& win)
 {
 	win.draw(shape);
+	
 }
 
 void Object::updateAxes()
@@ -65,22 +67,22 @@ void Object::updateAxes()
 
 	sf::Vector2f edge = points[0] - points[1];
 	sf::Vector2f normal(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal);
 	axes[0] = normal;
 
 	edge = points[1] - points[2];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal);
 	axes[1] = normal;
 
 	edge = points[2] - points[3];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal); 
 	axes[2] = normal;
 
 	edge = points[3] - points[0];
 	normal = sf::Vector2f(edge.x, -edge.y);
-	normalize(normal);
+	//normalize(normal);
 	axes[3] = normal;
 }
 
@@ -106,13 +108,31 @@ void Object::update(float deltaTime)
 		angle = angle + angVel * deltaTime;
 	}
 
-	if (mouseHax)
+	if (debugMode)
 	{
-		posX = sf::Mouse::getPosition().x;
-		posY = sf::Mouse::getPosition().y;
+		posX = sf::Mouse::getPosition(*window).x;
+		posY = sf::Mouse::getPosition(*window).y;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		{
+			angle += 1.5f;
+		}
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			angle -= 1.5f;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+		{
+			angle = 45.0f;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
+		{
+			angle = 0.0f;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+		{
+			angle = 30.0f;
+		}
 	}
-
-
 
 	shape.setRotation(angle);
 	shape.setPosition(posX, posY);

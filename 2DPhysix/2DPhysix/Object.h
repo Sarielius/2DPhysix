@@ -48,26 +48,25 @@ public:
 		}
 	}
 
-	void setMouse(bool yn)
+	void setDebugMode(bool yn, sf::Window* win)
 	{
-		mouseHax = yn;
+		debugMode = yn;
+		window = win;
 	}
 
-	std::vector<sf::Vector2f>& getAxes()
-	{
-		return axes;
-	}
 
 	void updateAxes();
 
 	void update(float deltaTime);
 	void render(sf::RenderWindow& win);
 
+
 	std::vector<sf::Vector2f> points; // Contains shape points in order
 	std::vector<sf::Vector2f> axes; // Contains edge normals for this object.
 
 private:
-	sf::RectangleShape shape;
+
+	sf::RectangleShape shape; // Shape of the object
 	bool movable; // Can the object be moved by anything.
 	bool rotatable; // Can the object spin.
 	float g; // Gravity.
@@ -79,7 +78,9 @@ private:
 	float angVel; // Angular velocity, how fast the object spins.
 	float mass; // Mass of the object. Only used in collision handling.
 	float forceMultiplier; // Multiplies velocities etc.
-	bool mouseHax;
+	bool debugMode;
+
+	sf::Window* window;
 
 	
 };

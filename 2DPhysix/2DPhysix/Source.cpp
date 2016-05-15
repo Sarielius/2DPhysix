@@ -10,3 +10,6 @@ int main()
 
 	return 0;
 }
+
+// C:\Users\PasiRii\Desktop\SFML-2.3.2\include;%(AdditionalIncludeDirectories)
+// C:\Users\PasiRii\Desktop\SFML-2.3.2\lib;%(AdditionalLibraryDirectories)
