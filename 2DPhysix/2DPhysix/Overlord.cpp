@@ -106,30 +106,33 @@ void Overlord::simulate() // Simulate using dirty hax or smth fam
 void Overlord::checkCollisions(Object* obj1, Object* obj2)
 {
 	MTV mtv;
-	std::vector<int> colAxisA;
-	std::vector<int> colAxisB;
-	//std::vector<sf::Vector2f> axis1 = obj1->getAxes();
-	//std::vector<sf::Vector2f> axis2 = obj2->getAxes();
+
+	MTV debugThing;
+
+	std::vector<MTV> DataA;
+	std::vector<MTV> DataB;
 
 	for (size_t i = 0; i < obj1->axes.size(); i++)
 	{
 		Projection proj1 = getProjection(obj1->axes[i], obj1);
 		Projection proj2 = getProjection(obj1->axes[i], obj2);
 
-		double currentOverlap = getOverlap(proj1, proj2);
+		float overlapA = getOverlap(proj1, proj2);
 
-		if (currentOverlap == 0.0f) // "Touching" or not colliding at all
+		if (overlapA == 0.0f) // "Touching" or not colliding at all
 		{
 			return;
 		}
 
-		if (currentOverlap < mtv.overlap || mtv.overlap == 0.0f)
+		if (overlapA < mtv.overlap || mtv.overlap == 0.0f)
 		{
-			mtv.overlap = currentOverlap;
+			mtv.overlap = overlapA;
 			mtv.axis = obj1->axes[i];
-			colAxisA.push_back(i);
+			
 		}
-
+		debugThing.axis = obj1->axes[i];
+		debugThing.overlap = overlapA;
+		DataA.push_back(debugThing);
 	}
 
 	for (size_t i = 0; i < obj2->axes.size(); i++)
@@ -137,20 +140,22 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		Projection proj1 = getProjection(obj2->axes[i], obj1);
 		Projection proj2 = getProjection(obj2->axes[i], obj2);
 
-		double currentOverlap = getOverlap(proj1, proj2);
+		float overlapB = getOverlap(proj1, proj2);
 
-		if (currentOverlap == 0.0f) // "Touching" or not colliding at all
+		if (overlapB == 0.0f) // "Touching" or not colliding at all
 		{
 			return;
 		}
 
-		if (currentOverlap < mtv.overlap)
+		if (overlapB < mtv.overlap)
 		{
-			mtv.overlap = currentOverlap;
+			mtv.overlap = overlapB;
 			mtv.axis = obj2->axes[i];
-			colAxisB.push_back(i);
+			
 		}
-
+		debugThing.axis = obj1->axes[i];
+		debugThing.overlap = overlapB;
+		DataB.push_back(debugThing);
 	}
 
 	// If get here a collision has occurred

@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <vector>
+#include <string>
 
 class Object
 {
@@ -54,6 +55,7 @@ public:
 		window = win;
 	}
 
+	
 
 	void updateAxes();
 
@@ -65,7 +67,6 @@ public:
 	std::vector<sf::Vector2f> axes; // Contains edge normals for this object.
 
 private:
-
 	sf::RectangleShape shape; // Shape of the object
 	bool movable; // Can the object be moved by anything.
 	bool rotatable; // Can the object spin.
@@ -79,9 +80,7 @@ private:
 	float mass; // Mass of the object. Only used in collision handling.
 	float forceMultiplier; // Multiplies velocities etc.
 	bool debugMode;
-
 	sf::Window* window;
 
-	
 };
 
