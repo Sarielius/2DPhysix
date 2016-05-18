@@ -165,3 +165,16 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	//resolveCollisions(obj1, obj2, mtv);
 }
 
+sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
+{
+	sf::Vector2f point;
+
+	
+
+	return point;
+}
+
+void Overlord::resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv)
+{
+
+}

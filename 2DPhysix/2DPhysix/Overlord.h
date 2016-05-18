@@ -128,6 +128,8 @@ public:
 	void simulate();
 	void checkCollisions(Object* obj1, Object* obj2);
 	void resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv); // tjsp
+	sf::Vector2f& getCollidingPoint(Object* obj1, Object* obj2);
+
 
 private:
 	int debugCounter;

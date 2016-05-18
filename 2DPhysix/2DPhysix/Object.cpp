@@ -24,28 +24,13 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 		points.push_back(shape.getTransform().transformPoint(shape.getPoint(i))); // World coordinates
 	}
 
-	// Hard coded, might change later, might not.
-
-	sf::Vector2f edge = points[0] - points[1];
-	//sf::Vector2f normal(edge.x, -edge.y);
-	//normalize(normal); 
-	axes.push_back(edge);
-
-	edge = points[1] - points[2];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal); 
-	axes.push_back(edge);
-
-	edge = points[2] - points[3];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal);
-	axes.push_back(edge);
-
-	edge = points[3] - points[0];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal);
-	axes.push_back(edge);
-
+	for (size_t i = 0; i < points.size(); i++)
+	{
+		int j = (i + 1) % points.size();
+		sf::Vector2f edge = points[i] - points[j];
+		//normalize(edge);
+		axes.push_back(edge);
+	}
 	debugMode = false;
 }
 
@@ -65,25 +50,13 @@ void Object::updateAxes()
 		points[i] = shape.getTransform().transformPoint(shape.getPoint(i));
 	}
 
-	sf::Vector2f edge = points[0] - points[1];
-	//sf::Vector2f normal(edge.x, -edge.y);
-	//normalize(normal);
-	axes[0] = edge;
-
-	edge = points[1] - points[2];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal);
-	axes[1] = edge;
-
-	edge = points[2] - points[3];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal); 
-	axes[2] = edge;
-
-	edge = points[3] - points[0];
-	//normal = sf::Vector2f(edge.x, -edge.y);
-	//normalize(normal);
-	axes[3] = edge;
+	for (size_t i = 0; i < points.size(); i++)
+	{
+		int j = (i + 1) % points.size();
+		sf::Vector2f edge = points[i] - points[j];
+		//normalize(edge);
+		axes[i] = edge;
+	}
 }
 
 void Object::update(float deltaTime)
