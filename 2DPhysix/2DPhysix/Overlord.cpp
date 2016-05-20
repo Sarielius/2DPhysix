@@ -162,14 +162,72 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	debugCounter++;
 	std::cout << "Collisions: " << debugCounter << "\n" ;
 
+	/*for (size_t i = obj1->axes.size() - 1; i >= 0; i--)
+	{
+		int j = (i - 1);
+		if (j < 0)
+		{
+			j = obj1->axes.size() - 1;
+		}
+	}*/
+
 	//resolveCollisions(obj1, obj2, mtv);
 }
 
 sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 {
-	sf::Vector2f point;
+	
+	std::vector<sf::Vector2f> points1 = obj1->getPoints();
+	std::vector<sf::Vector2f> points2 = obj2->getPoints();
+	std::vector<Line> lines;
+
+	for (size_t i = 0; i < points1.size(); i++)
+	{
+		int k = (i + 1) % points1.size();
+
+		for (size_t j = 0; j < points2.size(); j++)
+		{
+			int g = (j + 1) % points2.size();
+
+			if (doIntersect(points1[i], points1[k], points2[j], points2[g]))
+			{
+				Line line1 = { points1[i], points1[k] };
+				Line line2 = { points2[j], points2[g] };
+				if (!lines.empty())
+				{
+					for (size_t i = 0; i < lines.size(); i++)
+					{ // TODO LAMBDAS FOR REMOVAL.
+						if (lines[i].point1 == line1.point1 && lines[i].point2 == line1.point2)
+						{
+							lines.erase(lines.begin() + i);
+						}
+						else
+						{
+							lines.push_back(line1);
+						}
+
+						if (lines[i].point1 == line2.point1 && lines[i].point2 == line2.point2)
+						{
+							lines.erase(lines.begin() + i);
+						}
+						else
+						{
+							lines.push_back(line2);
+						}
+					}
+				}
+				else // First two are ALWAYS unique.
+				{
+					lines.push_back(line1);
+					lines.push_back(line2);
+				}
+			}
+		}
+	}
 
 	
+
+	sf::Vector2f point;
 
 	return point;
 }

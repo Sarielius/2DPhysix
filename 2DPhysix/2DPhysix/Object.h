@@ -55,13 +55,16 @@ public:
 		window = win;
 	}
 
-	
+	std::vector<sf::Vector2f>& getPoints()
+	{
+		return points;
+	}
 
 	void updateAxes();
 
 	void update(float deltaTime);
 	void render(sf::RenderWindow& win);
-
+	
 
 	std::vector<sf::Vector2f> points; // Contains shape points in order
 	std::vector<sf::Vector2f> axes; // Contains edge normals for this object.

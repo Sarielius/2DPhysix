@@ -27,8 +27,8 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	for (size_t i = 0; i < points.size(); i++)
 	{
 		int j = (i + 1) % points.size();
-		sf::Vector2f edge = points[i] - points[j];
-		//normalize(edge);
+		sf::Vector2f edge = points[j] - points[i]; // !
+		// normalize(edge);
 		axes.push_back(edge);
 	}
 	debugMode = false;
@@ -53,8 +53,8 @@ void Object::updateAxes()
 	for (size_t i = 0; i < points.size(); i++)
 	{
 		int j = (i + 1) % points.size();
-		sf::Vector2f edge = points[i] - points[j];
-		//normalize(edge);
+		sf::Vector2f edge = points[j] - points[i];
+		// normalize(edge);
 		axes[i] = edge;
 	}
 }

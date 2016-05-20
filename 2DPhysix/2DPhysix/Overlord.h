@@ -13,6 +13,11 @@ struct Projection
 	float min;
 	float max;
 };
+struct Line
+{
+	sf::Vector2f point1;
+	sf::Vector2f point2;
+};
 
 class Overlord
 {
@@ -71,11 +76,17 @@ public:
 	// Mathstuff + physics
 
 	// Returns dot product of two vectors, points, axis etc.
-	float dot(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+	/*float result = (vec1.x * vec2.x + vec1.y * vec2.y);
+	return result;*/
+	inline float dot(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 	{
-		// Could shorten this, longer for clarity.
-		float result = (vec1.x * vec2.x + vec1.y * vec2.y);
-		return result;
+		return (vec1.x * vec2.x + vec1.y * vec2.y);
+	}
+
+	// Perpendicular dot product
+	inline float perpDot(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
+	{
+		return (vec1.y * vec2.x) - (vec1.x * vec2.y);
 	}
 
 	// Gets the projection of a shape on a specific axis.
@@ -124,6 +135,43 @@ public:
 			return overlap2;
 		}
 	}
+
+	
+	bool doIntersect(const sf::Vector2f& A1, const sf::Vector2f& A2, const sf::Vector2f& B1, const sf::Vector2f& B2)
+	{
+		sf::Vector2f lineA(A2.x - A1.x, A2.y - A1.y);
+		sf::Vector2f lineB(B2.x - B1.x, B2.y - B1.y);
+		
+		// f is 0 if the lines are parallel
+		double f = perpDot(lineA, lineB);
+		if (!f)
+		{
+			return false; // Return false if parallel
+		}
+
+		sf::Vector2f lineC(B2.x - A2.x, B2.y - A2.y);
+		double aa = perpDot(lineA, lineC);
+		double bb = perpDot(lineB, lineC);
+
+		if (f < 0)
+		{
+			if (aa > 0) return false;
+			if (bb > 0) return false;
+			if (aa < f) return false;
+			if (bb < f) return false;
+		}
+		else
+		{
+			if (aa < 0) return false;
+			if (bb < 0) return false;
+			if (aa > f) return false;
+			if (bb > f) return false;
+		}
+
+		return true; // This should work according to t
+	}
+
+	
 
 	void simulate();
 	void checkCollisions(Object* obj1, Object* obj2);
