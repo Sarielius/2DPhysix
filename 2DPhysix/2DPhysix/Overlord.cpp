@@ -46,7 +46,7 @@ void Overlord::init()
 	
 
 
-	Object* box1 = createObject(100.0f, 100.0f, 500, 100.0f, 2.0f, false);
+	Object* box1 = createObject(100.0f, 100.0f, 400, 100.0f, 2.0f, false);
 	box1->getShape().setFillColor(sf::Color::Red);
 	box1->setHorizontalVelocity(1.0f);
 	box1->setVerticalVelocity(-2.0f);
@@ -56,20 +56,39 @@ void Overlord::init()
 	debugBox->getShape().setFillColor(sf::Color::White);
 	debugBox->setDebugMode(true, &window);
 
-	Object* box2 = createObject(100.0f, 100.0f, 780, 100.0f, 2.0f, false);
+	Object* box2 = createObject(100.0f, 100.0f, 880, 100.0f, 2.0f, false);
 	box2->getShape().setFillColor(sf::Color::Blue);
 	box2->setHorizontalVelocity(-1.0f);
 	box2->setVerticalVelocity(-2.0f);
 	box2->setAngle(45.0f);
 	box2->setAngularVelocity(0.5f);
 
-	Object* box3 = createObject(100.0f, 100.0f, 650.0f, 250.0f, 2.0f, false);
+	Object* box3 = createObject(100.0f, 100.0f, 400.0f, 500.0f, 2.0f, false);
 	box3->getShape().setFillColor(sf::Color::Cyan);
 	box3->setHorizontalVelocity(1.0f);
 	box3->setVerticalVelocity(-2.0f);
 	box3->setAngle(45.0f);
+
+	Object* box4 = createObject(100.0f, 100.0f, 880.0f, 500.0f, 2.0f, false);
+	box4->getShape().setFillColor(sf::Color::Yellow);
+	box4->setHorizontalVelocity(1.0f);
+	box4->setVerticalVelocity(-2.0f);
+	box4->setAngle(0.0f);
 	
-	// Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
+	Object* box5 = createObject(100.0f, 100.0f, 640.0f, 500.0f, 2.0f, false);
+	box5->getShape().setFillColor(sf::Color::Green);
+	box5->setAngle(35.0f);
+
+	sf::Vector2f box5pos = box5->getShape().getTransform().transformPoint(box5->getShape().getOrigin());
+	sf::Transform boxTrans = box5->getShape().getTransform();
+	
+	boxTrans = boxTrans.getInverse();
+	box5pos = boxTrans.transformPoint(box5pos);
+	
+	box5->setPosition(box5pos);
+
+
+    // Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
 	/*Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 50.0f, 0.0f, false, false);
 	ground->getShape().setFillColor(sf::Color::Magenta);*/
 	
@@ -109,8 +128,8 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 
 	MTV debugThing;
 
-	std::vector<MTV> DataA;
-	std::vector<MTV> DataB;
+	/*std::vector<MTV> DataA;
+	std::vector<MTV> DataB;*/
 
 	for (size_t i = 0; i < obj1->axes.size(); i++)
 	{
@@ -130,9 +149,9 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 			mtv.axis = obj1->axes[i];
 			
 		}
-		debugThing.axis = obj1->axes[i];
+		/*debugThing.axis = obj1->axes[i];
 		debugThing.overlap = overlapA;
-		DataA.push_back(debugThing);
+		DataA.push_back(debugThing);*/
 	}
 
 	for (size_t i = 0; i < obj2->axes.size(); i++)
@@ -153,14 +172,35 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 			mtv.axis = obj2->axes[i];
 			
 		}
-		debugThing.axis = obj1->axes[i];
+		/*debugThing.axis = obj1->axes[i];
 		debugThing.overlap = overlapB;
-		DataB.push_back(debugThing);
+		DataB.push_back(debugThing);*/
 	}
 
+	sf::Vector2f collidingPoint = getCollidingPoint(obj1, obj2);
+	sf::Vector2f relativeCollidingPoint(0.0f, 0.0f);
 	// If get here a collision has occurred
 	debugCounter++;
-	std::cout << "Collisions: " << debugCounter << "\n" ;
+	//std::cout << "Collisions: " << debugCounter << "\n" ;
+	// std::cout << "\nColliding point:" << "\nX " << collidingPoint.x << "\nY: " << collidingPoint.y << "\n";
+	
+	for (size_t i = 0; i < obj1->points.size(); i++)
+	{
+		if (obj1->points[i] == collidingPoint)
+		{
+			relativeCollidingPoint = obj2->getShape().getInverseTransform().transformPoint(collidingPoint);
+		}
+	}
+	
+	for (size_t i = 0; i < obj2->points.size(); i++)
+	{
+		if (obj2->points[i] == collidingPoint)
+		{
+			relativeCollidingPoint = obj1->getShape().getInverseTransform().transformPoint(collidingPoint);
+		}
+	}
+
+	std::cout << "\nRel. Col. point:" << "\nX " << relativeCollidingPoint.x << "\nY: " << relativeCollidingPoint.y << "\n";
 
 	/*for (size_t i = obj1->axes.size() - 1; i >= 0; i--)
 	{
@@ -171,12 +211,11 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		}
 	}*/
 
-	//resolveCollisions(obj1, obj2, mtv);
+	//resolveCollisions(obj1, obj2, mtv); Or just do this here? Is there a point in chaining this onwards?
 }
 
 sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 {
-	
 	std::vector<sf::Vector2f> points1 = obj1->getPoints();
 	std::vector<sf::Vector2f> points2 = obj2->getPoints();
 	std::vector<Line> lines;
@@ -191,30 +230,40 @@ sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 
 			if (doIntersect(points1[i], points1[k], points2[j], points2[g]))
 			{
+				bool line1Duplicate = false;
+				bool line2Duplicate = false;
+
 				Line line1 = { points1[i], points1[k] };
 				Line line2 = { points2[j], points2[g] };
+
 				if (!lines.empty())
 				{
 					for (size_t i = 0; i < lines.size(); i++)
-					{ // TODO LAMBDAS FOR REMOVAL.
-						if (lines[i].point1 == line1.point1 && lines[i].point2 == line1.point2)
+					{
+						if (lines[i] == line1)
 						{
-							lines.erase(lines.begin() + i);
-						}
-						else
-						{
-							lines.push_back(line1);
-						}
-
-						if (lines[i].point1 == line2.point1 && lines[i].point2 == line2.point2)
-						{
-							lines.erase(lines.begin() + i);
-						}
-						else
-						{
-							lines.push_back(line2);
+							line1Duplicate = true;
 						}
 					}
+
+					for (size_t i = 0; i < lines.size(); i++)
+					{
+						if (lines[i] == line2)
+						{
+							line2Duplicate = true;
+						}
+					}
+
+					if (!line1Duplicate)
+					{
+						lines.push_back(line1);
+					}
+
+					if (!line2Duplicate)
+					{
+						lines.push_back(line2);
+					}
+					
 				}
 				else // First two are ALWAYS unique.
 				{
@@ -225,9 +274,25 @@ sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 		}
 	}
 
+	// Can use 0.0f , 0.0f as no point found.
+	// If the "penetrating point happens by some miracle to be in world origin,
+	// we ignore the collision until it has moved a tiny bit further.
+	sf::Vector2f point(0.0f, 0.0f); 
 	
-
-	sf::Vector2f point;
+	for (size_t i = 0; i < lines.size() - 1; i++)
+	{
+		for (size_t j = i + 1; j < lines.size(); j++)
+		{
+			if (lines[i].point1 == lines[j].point1 || lines[i].point1 == lines[j].point2)
+			{
+				point = lines[i].point1;
+			}
+			if (lines[i].point2 == lines[j].point1 || lines[i].point2 == lines[j].point2)
+			{
+				point = lines[i].point2;
+			}
+		}	
+	}
 
 	return point;
 }

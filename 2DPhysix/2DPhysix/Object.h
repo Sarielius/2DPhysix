@@ -26,6 +26,7 @@ public:
 	void setAngle(float ang)
 	{
 		angle = ang;
+		shape.setRotation(angle);
 	}
 
 	void setAngularVelocity(float vel)
@@ -47,6 +48,12 @@ public:
 		{
 			vec = sf::Vector2f(vec.x / magnitude, vec.y / magnitude);
 		}
+	}
+	
+	void setPosition(const sf::Vector2f& pos)
+	{
+		posX = pos.x;
+		posY = pos.y;
 	}
 
 	void setDebugMode(bool yn, sf::Window* win)

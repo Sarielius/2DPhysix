@@ -17,6 +17,16 @@ struct Line
 {
 	sf::Vector2f point1;
 	sf::Vector2f point2;
+
+	bool operator==(const Line& other)
+	{
+		return this->point1 == other.point1 && this->point2 == other.point2;
+	}
+	
+	bool operator!=(const Line& other)
+	{
+		return this->point1 != other.point1 || this->point2 != other.point2;
+	}
 };
 
 class Overlord
@@ -86,7 +96,7 @@ public:
 	// Perpendicular dot product
 	inline float perpDot(const sf::Vector2f& vec1, const sf::Vector2f& vec2)
 	{
-		return (vec1.y * vec2.x) - (vec1.x * vec2.y);
+		return (vec1.y * vec2.x - vec1.x * vec2.y);
 	}
 
 	// Gets the projection of a shape on a specific axis.
