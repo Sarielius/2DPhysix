@@ -44,53 +44,46 @@ void Overlord::init()
 {
 	 //Create all the objects here...
 	
+	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 0.0f, false);
+	debugBox->getShape().setFillColor(sf::Color::White);
+	debugBox->setDebugMode(true, &window);
 
-
-	Object* box1 = createObject(100.0f, 100.0f, 400, 100.0f, 2.0f, false);
+	Object* box1 = createObject(100.0f, 100.0f, 400, 200.0f, 2.0f, false);
 	box1->getShape().setFillColor(sf::Color::Red);
 	box1->setHorizontalVelocity(1.0f);
 	box1->setVerticalVelocity(-2.0f);
 	box1->setAngle(30.0f);
 
-	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 0.0f, false);
-	debugBox->getShape().setFillColor(sf::Color::White);
-	debugBox->setDebugMode(true, &window);
-
-	Object* box2 = createObject(100.0f, 100.0f, 880, 100.0f, 2.0f, false);
+	Object* box2 = createObject(100.0f, 100.0f, 880, 200.0f, 2.0f, false);
 	box2->getShape().setFillColor(sf::Color::Blue);
 	box2->setHorizontalVelocity(-1.0f);
 	box2->setVerticalVelocity(-2.0f);
 	box2->setAngle(45.0f);
 	box2->setAngularVelocity(0.5f);
 
-	Object* box3 = createObject(100.0f, 100.0f, 400.0f, 500.0f, 2.0f, false);
+	Object* box3 = createObject(100.0f, 100.0f, 200.0f, 500.0f, 2.0f, false);
 	box3->getShape().setFillColor(sf::Color::Cyan);
 	box3->setHorizontalVelocity(1.0f);
 	box3->setVerticalVelocity(-2.0f);
 	box3->setAngle(45.0f);
 
-	Object* box4 = createObject(100.0f, 100.0f, 880.0f, 500.0f, 2.0f, false);
+	Object* box4 = createObject(100.0f, 100.0f, 1080.0f, 500.0f, 2.0f, false);
 	box4->getShape().setFillColor(sf::Color::Yellow);
 	box4->setHorizontalVelocity(1.0f);
 	box4->setVerticalVelocity(-2.0f);
 	box4->setAngle(0.0f);
 	
-	Object* box5 = createObject(100.0f, 100.0f, 640.0f, 500.0f, 2.0f, false);
+	Object* box5 = createObject(500.0f, 100.0f, 640.0f, 550.0f, 2.0f, false);
 	box5->getShape().setFillColor(sf::Color::Green);
-	box5->setAngle(35.0f);
+	box5->setAngle(0.0f);
 
-	sf::Vector2f box5pos = box5->getShape().getTransform().transformPoint(box5->getShape().getOrigin());
-	sf::Transform boxTrans = box5->getShape().getTransform();
 	
-	boxTrans = boxTrans.getInverse();
-	box5pos = boxTrans.transformPoint(box5pos);
-	
-	box5->setPosition(box5pos);
 
 
     // Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
-	/*Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 50.0f, 0.0f, false, false);
-	ground->getShape().setFillColor(sf::Color::Magenta);*/
+	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 0.0f, false, false);
+	ground->getShape().setFillColor(sf::Color::Magenta);
+
 	
 }
 
@@ -126,11 +119,6 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 {
 	MTV mtv;
 
-	MTV debugThing;
-
-	/*std::vector<MTV> DataA;
-	std::vector<MTV> DataB;*/
-
 	for (size_t i = 0; i < obj1->axes.size(); i++)
 	{
 		Projection proj1 = getProjection(obj1->axes[i], obj1);
@@ -147,11 +135,9 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		{
 			mtv.overlap = overlapA;
 			mtv.axis = obj1->axes[i];
-			
+			mtv.owner = 1;
 		}
-		/*debugThing.axis = obj1->axes[i];
-		debugThing.overlap = overlapA;
-		DataA.push_back(debugThing);*/
+	
 	}
 
 	for (size_t i = 0; i < obj2->axes.size(); i++)
@@ -170,46 +156,52 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		{
 			mtv.overlap = overlapB;
 			mtv.axis = obj2->axes[i];
-			
+			mtv.owner = 2;
 		}
-		/*debugThing.axis = obj1->axes[i];
-		debugThing.overlap = overlapB;
-		DataB.push_back(debugThing);*/
 	}
 
 	sf::Vector2f collidingPoint = getCollidingPoint(obj1, obj2);
-	sf::Vector2f relativeCollidingPoint(0.0f, 0.0f);
+	sf::Vector2f relativeCollidingPoint;
+
+	sf::Vector2f originA = obj1->getShape().getTransform().transformPoint(obj1->getShape().getOrigin());
+	sf::Vector2f originB = obj2->getShape().getTransform().transformPoint(obj2->getShape().getOrigin());
+
+	sf::Vector2f vectorToCollisionA;
+	sf::Vector2f vectorToCollisionB;
+
+	sf::Vector2f collisionNormal;
+
 	// If get here a collision has occurred
 	debugCounter++;
 	//std::cout << "Collisions: " << debugCounter << "\n" ;
 	// std::cout << "\nColliding point:" << "\nX " << collidingPoint.x << "\nY: " << collidingPoint.y << "\n";
 	
-	for (size_t i = 0; i < obj1->points.size(); i++)
+	if (obj1->ownsPoint(collidingPoint))
 	{
-		if (obj1->points[i] == collidingPoint)
-		{
-			relativeCollidingPoint = obj2->getShape().getInverseTransform().transformPoint(collidingPoint);
-		}
+		// Relative colliding point is the point in the OTHER object's local coordinates
+		relativeCollidingPoint = obj2->getShape().getInverseTransform().transformPoint(collidingPoint);
+		
+		// The vector from the origin to the collision point 
+		vectorToCollisionA = collidingPoint - originA;
+
+		// Origin offset is basically the objects origin in local coordinates.
+		vectorToCollisionB = relativeCollidingPoint - obj2->getOriginOffset();
 	}
-	
-	for (size_t i = 0; i < obj2->points.size(); i++)
+		
+	if (obj2->ownsPoint(collidingPoint)) // Other object must own the point if the first one does not.
 	{
-		if (obj2->points[i] == collidingPoint)
-		{
-			relativeCollidingPoint = obj1->getShape().getInverseTransform().transformPoint(collidingPoint);
-		}
+		relativeCollidingPoint = obj1->getShape().getInverseTransform().transformPoint(collidingPoint);
+		
+		vectorToCollisionB = collidingPoint - originB;
+
+		vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset(); 
 	}
+
 
 	std::cout << "\nRel. Col. point:" << "\nX " << relativeCollidingPoint.x << "\nY: " << relativeCollidingPoint.y << "\n";
-
-	/*for (size_t i = obj1->axes.size() - 1; i >= 0; i--)
-	{
-		int j = (i - 1);
-		if (j < 0)
-		{
-			j = obj1->axes.size() - 1;
-		}
-	}*/
+	std::cout << "\nVec to pointA:" << "\nX " << vectorToCollisionA.x << "\nY: " << vectorToCollisionA.y << "\n";
+	std::cout << "\nVec to pointB:" << "\nX " << vectorToCollisionB.x << "\nY: " << vectorToCollisionB.y << "\n";
+	std::cout << "\nMTV owner = " << mtv.owner << "\n";
 
 	//resolveCollisions(obj1, obj2, mtv); Or just do this here? Is there a point in chaining this onwards?
 }

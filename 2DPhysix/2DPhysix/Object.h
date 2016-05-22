@@ -3,6 +3,12 @@
 #include <vector>
 #include <string>
 
+struct Velocity
+{
+	float vx;
+	float vy;
+};
+
 class Object
 {
 public:
@@ -62,9 +68,47 @@ public:
 		window = win;
 	}
 
+	bool ownsPoint(const sf::Vector2f& point)
+	{
+		for (size_t i = 0; i < points.size(); i++)
+		{
+			if (points[i] == point)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	sf::Vector2f& getOriginOffset()
+	{
+		return originOffset;
+	}
+
 	std::vector<sf::Vector2f>& getPoints()
 	{
 		return points;
+	}
+
+	Velocity getVelocity()
+	{
+		Velocity vel = { vx, vy };
+	}
+	
+	void setNewVelocity(const Velocity& vel)
+	{
+		vx = vel.vx;
+		vy = vel.vy;
+	}
+
+	float getAngularVelocity()
+	{
+		return angVel;
+	}
+
+	float getAngle()
+	{
+		return angle;
 	}
 
 	void updateAxes();
@@ -78,6 +122,7 @@ public:
 
 private:
 	sf::RectangleShape shape; // Shape of the object
+	sf::Vector2f originOffset;
 	bool movable; // Can the object be moved by anything.
 	bool rotatable; // Can the object spin.
 	float g; // Gravity.

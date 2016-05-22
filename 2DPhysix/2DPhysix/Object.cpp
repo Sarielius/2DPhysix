@@ -17,6 +17,7 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 {
 	shape.setSize(sf::Vector2f(X, Y));
 	shape.setOrigin(X / 2, Y / 2); // Origin also acts as center of mass. getOrigin() for access.
+	originOffset = { X / 2, Y / 2 };
 	shape.setPosition(posX, posY);
 
 	for (size_t i = 0; i < 4; i++) // Push our points into a vector

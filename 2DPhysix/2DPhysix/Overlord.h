@@ -2,10 +2,14 @@
 #include "Object.h"
 #include <vector>
 
+#define DEGTORAD 0.0174532925199432957f
+#define RADTODEG 57.295779513082320876f
+
 struct MTV
 {
 	sf::Vector2f axis = sf::Vector2f(0.0f, 0.0f);
 	float overlap = 0.0f;
+	int owner = 0;
 };
 
 struct Projection
@@ -32,7 +36,10 @@ struct Line
 class Overlord
 {
 public:
-	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), dt(0.0f), debugCounter(0)
+	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), 
+		dt(0.0f), 
+		debugCounter(0),
+		restitution(1.0f)
 	{};
 
 	~Overlord()
@@ -188,6 +195,7 @@ public:
 	void resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv); // tjsp
 	sf::Vector2f& getCollidingPoint(Object* obj1, Object* obj2);
 
+	float restitution;
 
 private:
 	int debugCounter;
