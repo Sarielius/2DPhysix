@@ -43,7 +43,7 @@ public:
 	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), 
 		dt(0.0f), 
 		debugCounter(0),
-		e(1.0f)
+		e(0.5f)
 	{};
 
 	~Overlord()
@@ -58,8 +58,7 @@ public:
 	// Function which is used to create the objects.
 	Object* createObject(float sizeX, float sizeY, float posX, float posY, float mass, bool movable = true, bool rotatable = true, float gravity = -10.0f)
 	{
-		// Gravity multiplier, need to test for a better value
-		gravity = gravity * 100;
+		
 		Object* object = new Object(sizeX, sizeY, posX, posY, mass, movable, rotatable, gravity);
 		objects.push_back(object);
 		return object;

@@ -16,12 +16,12 @@ public:
 
 	void setHorizontalVelocity(float vel)
 	{
-		vx = vel * forceMultiplier;
+		vx = vel; // *forceMultiplier;
 	}
 
 	void setVerticalVelocity(float vel)
 	{
-		vy = vel * forceMultiplier;
+		vy = vel; // *forceMultiplier;
 	}
 
 	void setAngle(float ang)
@@ -32,12 +32,12 @@ public:
 
 	void setAngularVelocity(float vel)
 	{
-		angVel = vel * forceMultiplier;
+		angVel = vel; // *forceMultiplier;
 	}
 
 	void setForceMultiplier(float value)
 	{
-		forceMultiplier = value;
+		//forceMultiplier = value;
 	}
 
 	void normalize(sf::Vector2f& vec)
@@ -91,10 +91,10 @@ public:
 		return vel;
 	}
 	
-	void setNewVelocity(const sf::Vector2f& vel, const float& angularVel)
+	void setNewVelocity(const float& velX, const float& velY, const float& angularVel)
 	{
-		vx = vel.x;
-		vy = vel.y;
+		vx = velX;
+		vy = velY;
 		angVel = angularVel;
 	}
 
@@ -141,7 +141,7 @@ private:
 	float angle; // Rotation of the object in degrees.
 	float angVel; // Angular velocity, how fast the object spins.
 	float mass; // Mass of the object. Only used in collision handling.
-	float forceMultiplier; // Multiplies velocities etc.
+	// float forceMultiplier; // Multiplies velocities etc.
 	bool debugMode;
 	sf::Window* window;
 

@@ -3,11 +3,14 @@
 
 void Overlord::run()
 {
+	sf::Clock clock;
 	window.setFramerateLimit(30);
 	init();
 
 	while (window.isOpen())
 	{
+		
+		
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -15,20 +18,27 @@ void Overlord::run()
 			{
 				window.close();
 			}
+			
+		}
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+		{
+			window.close();
 		}
 
 		// Clear color
 		window.clear(sf::Color::Black);
 
 		// Deltatime for Euler (Physics calculations, need to manually adjust this, or take from sf::Clock.reset())
-		dt = 0.01f;
+		/*dt = 0.01f;*/
+		sf::Time elapsed = clock.restart();
 
 		// Check collisions and resolve those that have occured.
 
 		simulate();
 
 		// Update and draw everything.
-		update(dt);
+		update(elapsed.asSeconds()*2);
 		render(window);
 
 		// Print stuff to console.
@@ -48,24 +58,24 @@ void Overlord::init()
 	debugBox->getShape().setFillColor(sf::Color::White);
 	debugBox->setDebugMode(true, &window);
 
-	Object* box1 = createObject(100.0f, 100.0f, 400, 200.0f, 2.0f, false);
+	Object* box1 = createObject(100.0f, 100.0f, 550, 200.0f, 2.0f, false);
 	box1->getShape().setFillColor(sf::Color::Red);
-	box1->setHorizontalVelocity(1.0f);
+	box1->setHorizontalVelocity(4.0f);
 	box1->setVerticalVelocity(-2.0f);
 	box1->setAngle(30.0f);
 
 	Object* box2 = createObject(100.0f, 100.0f, 880, 200.0f, 2.0f, false);
 	box2->getShape().setFillColor(sf::Color::Blue);
-	box2->setHorizontalVelocity(-1.0f);
+	box2->setHorizontalVelocity(-2.0f);
 	box2->setVerticalVelocity(-2.0f);
 	box2->setAngle(45.0f);
-	box2->setAngularVelocity(0.5f);
+	box2->setAngularVelocity(10.0f);
 
 	Object* box3 = createObject(100.0f, 100.0f, 200.0f, 500.0f, 2.0f, false);
 	box3->getShape().setFillColor(sf::Color::Cyan);
 	box3->setHorizontalVelocity(1.0f);
 	box3->setVerticalVelocity(-2.0f);
-	box3->setAngle(45.0f);
+	box3->setAngularVelocity(-20.0f);
 
 	Object* box4 = createObject(100.0f, 100.0f, 1080.0f, 500.0f, 2.0f, false);
 	box4->getShape().setFillColor(sf::Color::Yellow);
@@ -73,7 +83,7 @@ void Overlord::init()
 	box4->setVerticalVelocity(-2.0f);
 	box4->setAngle(0.0f);
 	
-	Object* box5 = createObject(500.0f, 100.0f, 640.0f, 550.0f, 2.0f, false);
+	Object* box5 = createObject(500.0f, 100.0f, 640.0f, 550.0f, 5.0f, false);
 	box5->getShape().setFillColor(sf::Color::Green);
 	box5->setAngle(0.0f);
 
@@ -81,8 +91,8 @@ void Overlord::init()
 
 
     // Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
-	//Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 0.0f, false, false);
-	//ground->getShape().setFillColor(sf::Color::Magenta);
+	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 5.0f, false);
+	ground->getShape().setFillColor(sf::Color::Magenta);
 
 	
 }
@@ -189,6 +199,7 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		vectorToCollisionA = collidingPoint - originA;
 
 		// Origin offset is basically the objects origin in local coordinates.
+		/*vectorToCollisionB = relativeCollidingPoint;*/
 		vectorToCollisionB = relativeCollidingPoint - obj2->getOriginOffset();
 	}
 		
@@ -198,10 +209,8 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		
 		vectorToCollisionB = collidingPoint - originB;
 
+		/*vectorToCollisionA = relativeCollidingPoint;*/
 		vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset();
-
-
-
 	}
 
 	// Inertia for rectangles = 1/12*mass*(x^2 (x*x!) + y^2)
@@ -210,11 +219,11 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	
 
 	sf::Vector2f vOrigA = obj1->getVelocity();
-	float angVelA = obj1->getAngularVelocity();
+	float angVelA = -obj1->getAngularVelocity();
 	sf::Vector2f rOA = perp(vectorToCollisionA);
 
 	sf::Vector2f vOrigB = obj2->getVelocity();
-	float angVelB = obj2->getAngularVelocity();
+	float angVelB = -obj2->getAngularVelocity();
 	sf::Vector2f rOB = perp(vectorToCollisionB);
 
 	sf::Vector2f vA = vOrigA + angVelA * rOA;
@@ -234,6 +243,11 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 
 	float relativeNormalVelocity = dot(vAB, n);
 
+	std::cout << "\nRelativeNormalVelocity : " << relativeNormalVelocity << "\n";
+	std::cout << "\nCollision axis : " << "\nX: " << collisionAxis.x << "\nY: " << collisionAxis.y << "\n";
+	std::cout << "\nCollision normal : " << "\nX: " << n.x << "\nY: " << n.y << "\n";
+
+
 	if (relativeNormalVelocity < 0)
 	{
 		// Oh fuck
@@ -241,20 +255,36 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		float numerator = dot(-(1 + e)*vAB, n);
 
 		float denumLeftHelp = (1.0f / massA) + (1.0f / massB);
-		sf::Vector2f n2 = n* denumLeftHelp;
 
-		sf::Vector2f nTest = n*0.2f;
+		sf::Vector2f n2 = n* denumLeftHelp;
 
 		float denominatorLeft = dot(n, n2);
 
-
-
-
-		float denominatorRight = (dot(vectorToCollisionA, n) * dot(vectorToCollisionA, n)) / IA
-			+ (dot(vectorToCollisionB, n) * dot(vectorToCollisionB, n)) / IB;
+		float denominatorRight = (dot(rOA, n) * dot(rOA, n)) / IA
+			+ (dot(rOB, n) * dot(rOB, n)) / IB;
 
 		j = numerator / (denominatorLeft + denominatorRight);
 
+		/*float newXVelA = vOrigA.x + j / massA * n.x;
+		float newYVelA = vOrigA.y + j / massA * n.y;*/
+
+		float newXVelA = vA.x + j / massA * n.x;
+		float newYVelA = vA.y + j / massA * n.y;
+
+		float newAngVelA = angVelA + (dot(rOA, j*n)) / IA;
+
+
+
+		/*float newXVelB = vOrigB.x - j / massB * n.x;
+		float newYVelB = vOrigB.y - j / massB * n.y;*/
+
+		float newXVelB = vB.x - j / massB * n.x;
+		float newYVelB = vB.y - j / massB * n.y;
+
+		float newAngVelB = angVelB + (dot(rOB, -j*n)) / IB;
+
+		obj1->setNewVelocity(newXVelA, newYVelA, newAngVelA);
+		obj1->setNewVelocity(newXVelB, newYVelB, newAngVelB);
 	}
 
 
@@ -263,10 +293,10 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	//std::cout << "Collisions: " << debugCounter << "\n" ;
 	// std::cout << "\nColliding point:" << "\nX " << collidingPoint.x << "\nY: " << collidingPoint.y << "\n";
 
-	std::cout << "\nRel. Col. point:" << "\nX " << relativeCollidingPoint.x << "\nY: " << relativeCollidingPoint.y << "\n";
+	/*std::cout << "\nRel. Col. point:" << "\nX " << relativeCollidingPoint.x << "\nY: " << relativeCollidingPoint.y << "\n";
 	std::cout << "\nVec to pointA:" << "\nX " << vectorToCollisionA.x << "\nY: " << vectorToCollisionA.y << "\n";
 	std::cout << "\nVec to pointB:" << "\nX " << vectorToCollisionB.x << "\nY: " << vectorToCollisionB.y << "\n";
-	std::cout << "\nMTV owner = " << mtv.owner << "\n";
+	std::cout << "\nMTV owner = " << mtv.owner << "\n";*/
 
 	//resolveCollisions(obj1, obj2, mtv); Or just do this here? Is there a point in chaining this onwards?
 }

@@ -12,9 +12,8 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	mass(mass),
 	angle(0.0f),
 	angVel(0.0f),
-	forceMultiplier(100.0f),
 	window(nullptr)
-{
+{ //forceMultiplier(100.0f),
 	shape.setSize(sf::Vector2f(X, Y));
 
 	size.x = X;
@@ -93,23 +92,26 @@ void Object::update(float deltaTime)
 		posY = sf::Mouse::getPosition(*window).y;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			angle += 1.5f;
+			angVel += 1.0f;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			angle -= 1.5f;
+			angVel -= 1.0f;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		{
 			angle = 45.0f;
+			setAngularVelocity(0.0f);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::X))
 		{
 			angle = 0.0f;
+			setAngularVelocity(0.0f);
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 		{
 			angle = 30.0f;
+			setAngularVelocity(0.0f);
 		}
 	}
 
