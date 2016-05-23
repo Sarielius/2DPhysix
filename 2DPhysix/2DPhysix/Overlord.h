@@ -17,6 +17,7 @@ struct Projection
 	float min;
 	float max;
 };
+
 struct Line
 {
 	sf::Vector2f point1;
@@ -27,11 +28,14 @@ struct Line
 		return this->point1 == other.point1 && this->point2 == other.point2;
 	}
 	
-	bool operator!=(const Line& other)
-	{
-		return this->point1 != other.point1 || this->point2 != other.point2;
-	}
 };
+
+struct IntersectionData
+{
+	Line line;
+	sf::Vector2f point;
+};
+
 
 class Overlord
 {
@@ -39,7 +43,7 @@ public:
 	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), 
 		dt(0.0f), 
 		debugCounter(0),
-		restitution(1.0f)
+		e(1.0f)
 	{};
 
 	~Overlord()
@@ -88,9 +92,11 @@ public:
 	// Create objects and add them to the vector.
 	void init();
 
-	sf::RenderWindow window;
+	
 
-	// Mathstuff + physics
+	///////////////////// Mathstuff + physics /////////////////////
+
+
 
 	// Returns dot product of two vectors, points, axis etc.
 	/*float result = (vec1.x * vec2.x + vec1.y * vec2.y);
@@ -106,8 +112,14 @@ public:
 		return (vec1.y * vec2.x - vec1.x * vec2.y);
 	}
 
+	inline sf::Vector2f perp(const sf::Vector2f& vec)
+	{
+		sf::Vector2f perpendicularVector = { vec.y, -vec.x };
+		return perpendicularVector;
+	}
+
 	// Gets the projection of a shape on a specific axis.
-	Projection& getProjection(const sf::Vector2f& axis, Object* obj)
+	Projection getProjection(const sf::Vector2f& axis, Object* obj)
 	{
 		Projection proj;
 
@@ -185,21 +197,28 @@ public:
 			if (bb > f) return false;
 		}
 
-		return true; // This should work according to t
+		return true; // This should work, hopefully
 	}
 
 	
 
 	void simulate();
 	void checkCollisions(Object* obj1, Object* obj2);
-	void resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv); // tjsp
-	sf::Vector2f& getCollidingPoint(Object* obj1, Object* obj2);
+	// void resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv); // tjsp
+	IntersectionData getCollidingPoint(Object* obj1, Object* obj2);
 
-	float restitution;
+
+	///////////////////// Public variables /////////////////////
+
+	
+	sf::RenderWindow window;
 
 private:
 	int debugCounter;
 	std::vector<Object*> objects;
+
+	// e = restitution, global for simplicity
+	float e;
 
 	float dt;
 };

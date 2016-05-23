@@ -44,7 +44,7 @@ void Overlord::init()
 {
 	 //Create all the objects here...
 	
-	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 0.0f, false);
+	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 2.0f, false);
 	debugBox->getShape().setFillColor(sf::Color::White);
 	debugBox->setDebugMode(true, &window);
 
@@ -81,8 +81,8 @@ void Overlord::init()
 
 
     // Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
-	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 0.0f, false, false);
-	ground->getShape().setFillColor(sf::Color::Magenta);
+	//Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 0.0f, false, false);
+	//ground->getShape().setFillColor(sf::Color::Magenta);
 
 	
 }
@@ -160,7 +160,13 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		}
 	}
 
-	sf::Vector2f collidingPoint = getCollidingPoint(obj1, obj2);
+	// If get here a collision has occurred.
+
+	IntersectionData intData = getCollidingPoint(obj1, obj2);
+
+	sf::Vector2f collidingPoint = intData.point;
+	sf::Vector2f collisionAxis = intData.line.point2 - intData.line.point1;
+
 	sf::Vector2f relativeCollidingPoint;
 
 	sf::Vector2f originA = obj1->getShape().getTransform().transformPoint(obj1->getShape().getOrigin());
@@ -169,13 +175,11 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	sf::Vector2f vectorToCollisionA;
 	sf::Vector2f vectorToCollisionB;
 
-	sf::Vector2f collisionNormal;
+	// perp = { mtv.axis.y, -mtv.axis.x };
+	// Collision normal = vector perpendicular to the collision axis.
+	sf::Vector2f n = perp(collisionAxis);
 
-	// If get here a collision has occurred
-	debugCounter++;
-	//std::cout << "Collisions: " << debugCounter << "\n" ;
-	// std::cout << "\nColliding point:" << "\nX " << collidingPoint.x << "\nY: " << collidingPoint.y << "\n";
-	
+	// Get collision points and vectors from origin.
 	if (obj1->ownsPoint(collidingPoint))
 	{
 		// Relative colliding point is the point in the OTHER object's local coordinates
@@ -194,9 +198,70 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		
 		vectorToCollisionB = collidingPoint - originB;
 
-		vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset(); 
+		vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset();
+
+
+
 	}
 
+	// Inertia for rectangles = 1/12*mass*(x^2 (x*x!) + y^2)
+	// vA/B = vORIGIN + angVel * (rOA/OBperp)
+
+	
+
+	sf::Vector2f vOrigA = obj1->getVelocity();
+	float angVelA = obj1->getAngularVelocity();
+	sf::Vector2f rOA = perp(vectorToCollisionA);
+
+	sf::Vector2f vOrigB = obj2->getVelocity();
+	float angVelB = obj2->getAngularVelocity();
+	sf::Vector2f rOB = perp(vectorToCollisionB);
+
+	sf::Vector2f vA = vOrigA + angVelA * rOA;
+	sf::Vector2f vB = vOrigB + angVelB * rOB;
+
+	sf::Vector2f vAB = vA - vB;
+	
+	// Impulse multiplier (scalar)
+	float j;
+	float I = (1.0f / 12.0f);
+	// Inertia for objects A(1) and B(2)
+	float IA = I * obj1->getMass()*(obj1->getSize().x * obj1->getSize().x + obj1->getSize().y * obj1->getSize().y);
+	float IB = I * obj2->getMass()*(obj2->getSize().x * obj2->getSize().x + obj2->getSize().y * obj2->getSize().y);
+
+	float massA = obj1->getMass();
+	float massB = obj2->getMass();
+
+	float relativeNormalVelocity = dot(vAB, n);
+
+	if (relativeNormalVelocity < 0)
+	{
+		// Oh fuck
+		
+		float numerator = dot(-(1 + e)*vAB, n);
+
+		float denumLeftHelp = (1.0f / massA) + (1.0f / massB);
+		sf::Vector2f n2 = n* denumLeftHelp;
+
+		sf::Vector2f nTest = n*0.2f;
+
+		float denominatorLeft = dot(n, n2);
+
+
+
+
+		float denominatorRight = (dot(vectorToCollisionA, n) * dot(vectorToCollisionA, n)) / IA
+			+ (dot(vectorToCollisionB, n) * dot(vectorToCollisionB, n)) / IB;
+
+		j = numerator / (denominatorLeft + denominatorRight);
+
+	}
+
+
+	// perp = { mtv.axis.y, -mtv.axis.x };
+	//debugCounter++;
+	//std::cout << "Collisions: " << debugCounter << "\n" ;
+	// std::cout << "\nColliding point:" << "\nX " << collidingPoint.x << "\nY: " << collidingPoint.y << "\n";
 
 	std::cout << "\nRel. Col. point:" << "\nX " << relativeCollidingPoint.x << "\nY: " << relativeCollidingPoint.y << "\n";
 	std::cout << "\nVec to pointA:" << "\nX " << vectorToCollisionA.x << "\nY: " << vectorToCollisionA.y << "\n";
@@ -206,11 +271,13 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	//resolveCollisions(obj1, obj2, mtv); Or just do this here? Is there a point in chaining this onwards?
 }
 
-sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
+IntersectionData Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 {
 	std::vector<sf::Vector2f> points1 = obj1->getPoints();
 	std::vector<sf::Vector2f> points2 = obj2->getPoints();
 	std::vector<Line> lines;
+
+	IntersectionData intData;
 
 	for (size_t i = 0; i < points1.size(); i++)
 	{
@@ -235,6 +302,7 @@ sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 						if (lines[i] == line1)
 						{
 							line1Duplicate = true;
+							intData.line = line1;
 						}
 					}
 
@@ -243,6 +311,7 @@ sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 						if (lines[i] == line2)
 						{
 							line2Duplicate = true;
+							intData.line = line2;
 						}
 					}
 
@@ -277,19 +346,19 @@ sf::Vector2f& Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 		{
 			if (lines[i].point1 == lines[j].point1 || lines[i].point1 == lines[j].point2)
 			{
-				point = lines[i].point1;
+				intData.point = lines[i].point1;
 			}
 			if (lines[i].point2 == lines[j].point1 || lines[i].point2 == lines[j].point2)
 			{
-				point = lines[i].point2;
+				intData.point = lines[i].point2;
 			}
 		}	
 	}
 
-	return point;
+	return intData;
 }
 
-void Overlord::resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv)
-{
-
-}
+// void Overlord::resolveCollisions(Object* obj1, Object* obj2, const MTV& mtv)
+//{
+//
+//}

@@ -3,11 +3,6 @@
 #include <vector>
 #include <string>
 
-struct Velocity
-{
-	float vx;
-	float vy;
-};
 
 class Object
 {
@@ -90,25 +85,37 @@ public:
 		return points;
 	}
 
-	Velocity getVelocity()
+	sf::Vector2f getVelocity()
 	{
-		Velocity vel = { vx, vy };
+		sf::Vector2f vel = { vx, vy };
+		return vel;
 	}
 	
-	void setNewVelocity(const Velocity& vel)
+	void setNewVelocity(const sf::Vector2f& vel, const float& angularVel)
 	{
-		vx = vel.vx;
-		vy = vel.vy;
+		vx = vel.x;
+		vy = vel.y;
+		angVel = angularVel;
 	}
 
-	float getAngularVelocity()
+	float& getAngularVelocity()
 	{
 		return angVel;
 	}
 
-	float getAngle()
+	float& getAngle()
 	{
 		return angle;
+	}
+
+	float& getMass()
+	{
+		return mass;
+	}
+
+	sf::Vector2f& getSize()
+	{
+		return size;
 	}
 
 	void updateAxes();
@@ -123,6 +130,7 @@ public:
 private:
 	sf::RectangleShape shape; // Shape of the object
 	sf::Vector2f originOffset;
+	sf::Vector2f size;
 	bool movable; // Can the object be moved by anything.
 	bool rotatable; // Can the object spin.
 	float g; // Gravity.
