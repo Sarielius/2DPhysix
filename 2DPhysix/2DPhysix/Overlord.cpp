@@ -234,12 +234,14 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	// Impulse multiplier (scalar)
 	float j;
 	float I = (1.0f / 12.0f);
-	// Inertia for objects A(1) and B(2)
-	float IA = I * obj1->getMass()*(obj1->getSize().x * obj1->getSize().x + obj1->getSize().y * obj1->getSize().y);
-	float IB = I * obj2->getMass()*(obj2->getSize().x * obj2->getSize().x + obj2->getSize().y * obj2->getSize().y);
 
 	float massA = obj1->getMass();
 	float massB = obj2->getMass();
+
+	// Inertia for objects A(1) and B(2)
+	float IA = I * massA*(obj1->getSize().x * obj1->getSize().x + obj1->getSize().y * obj1->getSize().y);
+	float IB = I * massB*(obj2->getSize().x * obj2->getSize().x + obj2->getSize().y * obj2->getSize().y);
+
 
 	float relativeNormalVelocity = dot(vAB, n);
 

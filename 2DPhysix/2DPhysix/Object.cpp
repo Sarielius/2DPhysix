@@ -92,11 +92,11 @@ void Object::update(float deltaTime)
 		posY = sf::Mouse::getPosition(*window).y;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			angVel += 1.0f;
+			angVel -= 1.5f;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			angVel -= 1.0f;
+			angVel += 1.5f;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		{
