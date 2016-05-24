@@ -3,7 +3,7 @@
 #include <vector>
 
 #define DEGTORAD 0.0174532925199432957f
-#define RADTODEG 57.295779513082320876f
+
 
 struct MTV
 {
@@ -43,7 +43,7 @@ public:
 	Overlord(int w, int h) : window(sf::VideoMode(w, h), "2DPhysix Premium 2016"), 
 		dt(0.0f), 
 		debugCounter(0),
-		e(0.5f)
+		e(0.9f)
 	{};
 
 	~Overlord()
@@ -77,8 +77,9 @@ public:
 	// Draw everything
 	void render(sf::RenderWindow& win)
 	{
-		for (auto &object : objects)
+		for (auto object : objects)
 		{
+
 			object->render(win);
 		}
 	}
@@ -113,7 +114,7 @@ public:
 
 	inline sf::Vector2f perp(const sf::Vector2f& vec)
 	{
-		sf::Vector2f perpendicularVector = { vec.y, -vec.x };
+		sf::Vector2f perpendicularVector = { -vec.y, vec.x };
 		return perpendicularVector;
 	}
 
@@ -215,7 +216,8 @@ public:
 private:
 	int debugCounter;
 	std::vector<Object*> objects;
-
+	sf::RectangleShape debugBox;
+	sf::RectangleShape originBox;
 	// e = restitution, global for simplicity
 	float e;
 

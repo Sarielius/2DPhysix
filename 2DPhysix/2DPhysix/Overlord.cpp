@@ -4,7 +4,7 @@
 void Overlord::run()
 {
 	sf::Clock clock;
-	window.setFramerateLimit(30);
+	window.setFramerateLimit(60);
 	init();
 
 	while (window.isOpen())
@@ -38,7 +38,7 @@ void Overlord::run()
 		simulate();
 
 		// Update and draw everything.
-		update(elapsed.asSeconds()*2);
+		update(1.0f/60.0f);
 		render(window);
 
 		// Print stuff to console.
@@ -54,46 +54,49 @@ void Overlord::init()
 {
 	 //Create all the objects here...
 	
-	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y, 2.0f, false);
+	Object* debugBox = createObject(100.0f, 100.0f, sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y + window.getSize().y, 2.0f, false);
 	debugBox->getShape().setFillColor(sf::Color::White);
 	debugBox->setDebugMode(true, &window);
 
-	Object* box1 = createObject(100.0f, 100.0f, 550, 200.0f, 2.0f, false);
+	Object* box1 = createObject(100.0f, 100.0f, 450, 200.0f, 2.0f, true);
 	box1->getShape().setFillColor(sf::Color::Red);
-	box1->setHorizontalVelocity(4.0f);
-	box1->setVerticalVelocity(-2.0f);
+	box1->setHorizontalVelocity(80.0f);
+	box1->setVerticalVelocity(2.0f);
 	box1->setAngle(30.0f);
+	box1->setAngularVelocity(DEGTORAD*2.0f);
 
-	Object* box2 = createObject(100.0f, 100.0f, 880, 200.0f, 2.0f, false);
+	Object* box2 = createObject(100.0f, 100.0f, 640.0f, 300.0f, 2.0f, true);
 	box2->getShape().setFillColor(sf::Color::Blue);
-	box2->setHorizontalVelocity(-2.0f);
-	box2->setVerticalVelocity(-2.0f);
-	box2->setAngle(45.0f);
-	box2->setAngularVelocity(10.0f);
+	box2->setHorizontalVelocity(-5.0f);
+	box2->setVerticalVelocity(1.0f);
+	box2->setAngle(0.0f);
+	box2->setAngularVelocity(DEGTORAD*-1.0f);
 
-	Object* box3 = createObject(100.0f, 100.0f, 200.0f, 500.0f, 2.0f, false);
-	box3->getShape().setFillColor(sf::Color::Cyan);
-	box3->setHorizontalVelocity(1.0f);
-	box3->setVerticalVelocity(-2.0f);
-	box3->setAngularVelocity(-20.0f);
-
-	Object* box4 = createObject(100.0f, 100.0f, 1080.0f, 500.0f, 2.0f, false);
-	box4->getShape().setFillColor(sf::Color::Yellow);
-	box4->setHorizontalVelocity(1.0f);
-	box4->setVerticalVelocity(-2.0f);
-	box4->setAngle(0.0f);
 	
-	Object* box5 = createObject(500.0f, 100.0f, 640.0f, 550.0f, 5.0f, false);
+	Object* box3 = createObject(100.0f, 100.0f, 200.0f, 500.0f, 2.0f, true);
+	box3->getShape().setFillColor(sf::Color::Cyan);
+	box3->setHorizontalVelocity(10.0f);
+	box3->setVerticalVelocity(-2.0f);
+	box3->setAngle(20.0f);
+	box3->setAngularVelocity(DEGTORAD*-3.0f);
+
+	Object* box4 = createObject(100.0f, 100.0f, 1080.0f, 500.0f, 2.0f, true);
+	box4->getShape().setFillColor(sf::Color::Yellow);
+	box4->setHorizontalVelocity(-5.0f);
+	box4->setVerticalVelocity(2.0f);
+	box4->setAngle(8.0f);
+	
+	/*Object* box5 = createObject(500.0f, 100.0f, 640.0f, 550.0f, 5.0f, false);
 	box5->getShape().setFillColor(sf::Color::Green);
-	box5->setAngle(0.0f);
+	box5->setAngle(0.0f);*/
 
 	
 
 
     // Ground / wall mass should be infinite, need to check visually for a proper value, likely 0
-	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, window.getSize().y - 25.0f, 5.0f, false);
+	Object* ground = createObject(window.getSize().x, 50.0f, window.getSize().x / 2, 50.0f, 5.0f, false, false);
 	ground->getShape().setFillColor(sf::Color::Magenta);
-
+	ground->setAngle(0.5f);
 	
 }
 
@@ -175,19 +178,34 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	IntersectionData intData = getCollidingPoint(obj1, obj2);
 
 	sf::Vector2f collidingPoint = intData.point;
-	sf::Vector2f collisionAxis = intData.line.point2 - intData.line.point1;
+	sf::Vector2f collisionAxis = intData.line.point1 - intData.line.point2;
 
 	sf::Vector2f relativeCollidingPoint;
 
-	sf::Vector2f originA = obj1->getShape().getTransform().transformPoint(obj1->getShape().getOrigin());
-	sf::Vector2f originB = obj2->getShape().getTransform().transformPoint(obj2->getShape().getOrigin());
+
+	sf::Vector2f originA(obj1->posX, obj1->posY);
+	sf::Vector2f originB(obj2->posX, obj2->posY);
+	
+	//sf::Vector2f originA = obj1->getShape().getPosition();
+	//sf::Vector2f originB = obj2->getShape().getPosition();
+	//originA.y += +2 * window.getSize().y;
+	//originB.y += +2 * window.getSize().y;
+
+	/*sf::Vector2f originTest = obj1->getShape().getPosition();*/
 
 	sf::Vector2f vectorToCollisionA;
 	sf::Vector2f vectorToCollisionB;
-
-	// perp = { mtv.axis.y, -mtv.axis.x };
+	
 	// Collision normal = vector perpendicular to the collision axis.
 	sf::Vector2f n = perp(collisionAxis);
+	
+	float magnitude = sqrt(n.x * n.x + n.y * n.y);
+
+	// Can't divide by zero.
+	if (magnitude > 0)
+	{
+		n = sf::Vector2f(n.x / magnitude, n.y / magnitude);
+	}
 
 	// Get collision points and vectors from origin.
 	if (obj1->ownsPoint(collidingPoint))
@@ -199,8 +217,8 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		vectorToCollisionA = collidingPoint - originA;
 
 		// Origin offset is basically the objects origin in local coordinates.
-		/*vectorToCollisionB = relativeCollidingPoint;*/
-		vectorToCollisionB = relativeCollidingPoint - obj2->getOriginOffset();
+		vectorToCollisionB = collidingPoint - originB;
+		/*vectorToCollisionB = relativeCollidingPoint - obj2->getOriginOffset();*/
 	}
 		
 	if (obj2->ownsPoint(collidingPoint)) // Other object must own the point if the first one does not.
@@ -209,8 +227,8 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		
 		vectorToCollisionB = collidingPoint - originB;
 
-		/*vectorToCollisionA = relativeCollidingPoint;*/
-		vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset();
+		vectorToCollisionA = collidingPoint - originA;
+		//vectorToCollisionA = relativeCollidingPoint - obj1->getOriginOffset();
 	}
 
 	// Inertia for rectangles = 1/12*mass*(x^2 (x*x!) + y^2)
@@ -219,11 +237,11 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	
 
 	sf::Vector2f vOrigA = obj1->getVelocity();
-	float angVelA = -obj1->getAngularVelocity();
+	float angVelA = obj1->getAngularVelocity();
 	sf::Vector2f rOA = perp(vectorToCollisionA);
 
 	sf::Vector2f vOrigB = obj2->getVelocity();
-	float angVelB = -obj2->getAngularVelocity();
+	float angVelB = obj2->getAngularVelocity();
 	sf::Vector2f rOB = perp(vectorToCollisionB);
 
 	sf::Vector2f vA = vOrigA + angVelA * rOA;
@@ -253,7 +271,7 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 	if (relativeNormalVelocity < 0)
 	{
 		// Oh fuck
-		
+
 		float numerator = dot(-(1 + e)*vAB, n);
 
 		float denumLeftHelp = (1.0f / massA) + (1.0f / massB);
@@ -270,24 +288,53 @@ void Overlord::checkCollisions(Object* obj1, Object* obj2)
 		/*float newXVelA = vOrigA.x + j / massA * n.x;
 		float newYVelA = vOrigA.y + j / massA * n.y;*/
 
-		float newXVelA = vA.x + j / massA * n.x;
-		float newYVelA = vA.y + j / massA * n.y;
+		float newXVelA;
+		float newYVelA;
+		float newAngVelA;
 
-		float newAngVelA = angVelA + (dot(rOA, j*n)) / IA;
+		float newXVelB;
+		float newYVelB;
+		float newAngVelB;
 
+		if (obj1->ownsPoint(collidingPoint))
+		{
+			newXVelA = vOrigA.x + j / massA * n.x;
+			newYVelA = vOrigA.y + j / massA * n.y;
 
+			newAngVelA = angVelA + (dot(rOA, j*n)) / IA;
 
-		/*float newXVelB = vOrigB.x - j / massB * n.x;
-		float newYVelB = vOrigB.y - j / massB * n.y;*/
+			newXVelB = vOrigB.x - j / massB * n.x;
+			newYVelB = vOrigB.y - j / massB * n.y;
 
-		float newXVelB = vB.x - j / massB * n.x;
-		float newYVelB = vB.y - j / massB * n.y;
+			newAngVelB = angVelB + (dot(rOB, -j*n)) / IB;
+		}
+		else
+		{
+			newXVelA = vOrigA.x - j / massA * n.x;
+			newYVelA = vOrigA.y - j / massA * n.y;
 
-		float newAngVelB = angVelB + (dot(rOB, -j*n)) / IB;
+			newAngVelA = angVelA + (dot(rOA, -j*n)) / IA;
+
+			newXVelB = vOrigB.x + j / massB * n.x;
+			newYVelB = vOrigB.y + j / massB * n.y;
+
+			newAngVelB = angVelB + (dot(rOB, j*n)) / IB;
+		}
+
 
 		obj1->setNewVelocity(newXVelA, newYVelA, newAngVelA);
-		obj1->setNewVelocity(newXVelB, newYVelB, newAngVelB);
+		obj2->setNewVelocity(newXVelB, newYVelB, newAngVelB);
 	}
+
+	
+	debugBox.setSize(sf::Vector2f(10.0f, 10.f));
+	debugBox.setOrigin(debugBox.getPosition().x / 2, debugBox.getPosition().y / 2);
+	debugBox.setPosition(collidingPoint.x, -collidingPoint.y + window.getSize().y);
+	debugBox.setOutlineColor(sf::Color::Red);
+	window.draw(debugBox);
+/*
+	originBox.setSize(sf::Vector2f(10.0f, 10.f));
+	originBox.setPosition()*/
 
 
 	// perp = { mtv.axis.y, -mtv.axis.x };
@@ -335,6 +382,7 @@ IntersectionData Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 						{
 							line1Duplicate = true;
 							intData.line = line1;
+							break;
 						}
 					}
 
@@ -344,6 +392,7 @@ IntersectionData Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 						{
 							line2Duplicate = true;
 							intData.line = line2;
+							break;
 						}
 					}
 
@@ -363,14 +412,14 @@ IntersectionData Overlord::getCollidingPoint(Object* obj1, Object* obj2)
 					lines.push_back(line1);
 					lines.push_back(line2);
 				}
+				
 			}
 		}
 	}
 
 	// Can use 0.0f , 0.0f as no point found.
 	// If the "penetrating point happens by some miracle to be in world origin,
-	// we ignore the collision until it has moved a tiny bit further.
-	sf::Vector2f point(0.0f, 0.0f); 
+	// we ignore the collision until it has moved a tiny bit further. 
 	
 	for (size_t i = 0; i < lines.size() - 1; i++)
 	{

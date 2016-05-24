@@ -13,7 +13,9 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 	angle(0.0f),
 	angVel(0.0f),
 	window(nullptr)
-{ //forceMultiplier(100.0f),
+{ 
+	
+
 	shape.setSize(sf::Vector2f(X, Y));
 
 	size.x = X;
@@ -21,12 +23,22 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 
 	shape.setOrigin(X / 2, Y / 2); // Origin also acts as center of mass. getOrigin() for access.
 
+	/*sf::Vector2f worldOrigin = */
+
 	originOffset = { X / 2, Y / 2 };
 	shape.setPosition(posX, posY);
 
+
+	
+	sf::Vector2f point;
 	for (size_t i = 0; i < 4; i++) // Push our points into a vector
-	{
-		points.push_back(shape.getTransform().transformPoint(shape.getPoint(i))); // World coordinates
+	{ 
+		 //points.push_back(shape.getTransform().transformPoint(shape.getPoint(i))); // World coordinates
+		 
+		points.push_back(sf::Vector2f(posX + (shape.getPoint(i).x - size.x / 2)*cos(angle) - (shape.getPoint(i).y - size.y / 2)*sin(angle),
+					  	posY + (shape.getPoint(i).y - size.y / 2)*cos(angle) + (shape.getPoint(i).x - size.x / 2)*sin(angle)));
+		
+		point = shape.getPoint(i);
 	}
 
 	for (size_t i = 0; i < points.size(); i++)
@@ -42,8 +54,10 @@ Object::Object(const float X, const float Y, const float positionX, const float 
 
 void Object::render(sf::RenderWindow& win)
 {
+
+	shape.setPosition(shape.getPosition().x, -shape.getPosition().y + win.getSize().y);
 	win.draw(shape);
-	
+	shape.setPosition(shape.getPosition().x, -shape.getPosition().y - win.getSize().y);
 }
 
 void Object::updateAxes()
@@ -52,7 +66,9 @@ void Object::updateAxes()
 
 	for (size_t i = 0; i < 4; i++) // Push our points into a vector
 	{
-		points[i] = shape.getTransform().transformPoint(shape.getPoint(i));
+		//points[i] = shape.getTransform().transformPoint(shape.getPoint(i));
+		points[i] = sf::Vector2f(posX + (shape.getPoint(i).x-size.x/2)*cos(angle) - (shape.getPoint(i).y-size.y/2)*sin(angle), 
+			                     posY + (shape.getPoint(i).y-size.y/2)*cos(angle) + (shape.getPoint(i).x-size.x/2)*sin(angle));
 	}
 
 	for (size_t i = 0; i < points.size(); i++)
@@ -76,8 +92,8 @@ void Object::update(float deltaTime)
 	{
 		// Standard falling motion with x-directional velocity.
 		// We don't care how the object gained its velocity so mass isn't taken into account. Maybe in the future.
-		posY = posY + vy * deltaTime;
-		vy = vy - g * deltaTime;
+		posY = posY + vy  * deltaTime;
+		vy = vy + g * deltaTime;
 		posX = posX + vx * deltaTime;
 	}
 
@@ -89,14 +105,14 @@ void Object::update(float deltaTime)
 	if (debugMode)
 	{
 		posX = sf::Mouse::getPosition(*window).x;
-		posY = sf::Mouse::getPosition(*window).y;
+		posY = -sf::Mouse::getPosition(*window).y + window->getSize().y;
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			angVel -= 1.5f;
+			angVel -= 0.5f;
 		}
 		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
-			angVel += 1.5f;
+			angVel += 0.5f;
 		}
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		{
@@ -115,7 +131,7 @@ void Object::update(float deltaTime)
 		}
 	}
 
-	shape.setRotation(angle);
+	shape.setRotation(RADTODEG * -angle);
 	shape.setPosition(posX, posY);
 
 	updateAxes(); // Get all axes for this object for SAT.

@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 
+#define RADTODEG 57.295779513082320876f
 
 class Object
 {
@@ -27,7 +28,6 @@ public:
 	void setAngle(float ang)
 	{
 		angle = ang;
-		shape.setRotation(angle);
 	}
 
 	void setAngularVelocity(float vel)
@@ -118,6 +118,9 @@ public:
 		return size;
 	}
 
+	float posX; // Horizontal location.
+	float posY; // Vertical location.
+	
 	void updateAxes();
 
 	void update(float deltaTime);
@@ -136,8 +139,7 @@ private:
 	float g; // Gravity.
 	float vx; // Horizontal speed.
 	float vy; // Vertical speed.
-	float posX; // Horizontal location.
-	float posY; // Vertical location.
+	
 	float angle; // Rotation of the object in degrees.
 	float angVel; // Angular velocity, how fast the object spins.
 	float mass; // Mass of the object. Only used in collision handling.
